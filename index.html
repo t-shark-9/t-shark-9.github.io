@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reader - Read Faster and Better</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Speed Reader</h1>
+            <p>Read faster by focusing on one word at a time</p>
+        </header>
+
+        <main>
+            <!-- Text Input Section -->
+            <section class="input-section">
+                <label for="textInput">Paste your text here:</label>
+                <textarea 
+                    id="textInput" 
+                    placeholder="Paste or type your long-form content here..."
+                    rows="8"
+                ></textarea>
+                
+                <div class="controls">
+                    <button id="playBtn" class="play-btn">
+                        <span id="playIcon">▶️</span> Start Reading
+                    </button>
+                    <button id="resetBtn" class="reset-btn">🔄 Reset</button>
+                    
+                    <div class="speed-control">
+                        <label for="speedSlider">Speed (WPM):</label>
+                        <input type="range" id="speedSlider" min="100" max="1000" value="500" step="50">
+                        <span id="speedDisplay">500</span> WPM
+                    </div>
+                </div>
+            </section>
+
+            <!-- Word Display Area -->
+            <section class="display-section">
+                <div class="word-container">
+                    <div id="wordDisplay" class="word-display">
+                        Click "Start Reading" to begin
+                    </div>
+                    
+                    <div class="progress-info">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <div class="word-info">
+                            Word <span id="currentWord">0</span> of <span id="totalWords">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sample Text Button -->
+            <section class="sample-section">
+                <button id="sampleBtn" class="sample-btn">📖 Load Sample Text</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>Speed reading technique: Focus on the center and let your peripheral vision catch each word</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
