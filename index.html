@@ -55,6 +55,26 @@
                 </div>
             </section>
 
+            <!-- Internet Archive Book Search -->
+            <section class="book-search-section">
+                <h3>📚 Search Books from Internet Archive</h3>
+                <div class="book-search-controls">
+                    <input 
+                        type="text" 
+                        id="bookSearchInput" 
+                        placeholder="Search for books (e.g., 'Alice in Wonderland', 'Pride and Prejudice')"
+                        class="book-search-input"
+                    >
+                    <button id="searchBooksBtn" class="search-books-btn">🔍 Search Books</button>
+                </div>
+                
+                <div id="searchResults" class="search-results"></div>
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Searching books...</p>
+                </div>
+            </section>
+
             <!-- Sample Text Button -->
             <section class="sample-section">
                 <button id="sampleBtn" class="sample-btn">📖 Load Sample Text</button>
