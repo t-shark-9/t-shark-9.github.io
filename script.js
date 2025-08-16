@@ -186,36 +186,157 @@ class SpeedReader {
         loadingElement.style.display = 'block';
         
         try {
-            // Try to get plain text version
-            const textUrl = `https://archive.org/download/${identifier}/${identifier}.txt`;
+            // First, get metadata to understand available formats
+            const metadataUrl = `https://archive.org/metadata/${identifier}`;
+            const metadataResponse = await fetch(metadataUrl);
             
-            let response = await fetch(textUrl);
+            if (!metadataResponse.ok) {
+                throw new Error('Failed to fetch book metadata');
+            }
             
-            if (!response.ok) {
-                // If direct .txt doesn't work, try to get metadata and find text files
-                const metadataUrl = `https://archive.org/metadata/${identifier}`;
-                const metadataResponse = await fetch(metadataUrl);
-                const metadata = await metadataResponse.json();
-                
-                // Look for text files in the item
-                const textFile = metadata.files?.find(file => 
-                    file.name.endsWith('.txt') || 
-                    file.format === 'DjVuTXT' ||
-                    file.format === 'Text'
+            const metadata = await metadataResponse.json();
+            
+            // Look for text files in order of preference
+            const textFormats = [
+                'DjVuTXT',
+                'Text',
+                'Abbyy GZ',
+                'Single Page Processed JP2 ZIP',
+                'Scandata',
+                'Djvu XML'
+            ];
+            
+            let textFile = null;
+            let bestFormat = null;
+            
+            // Find the best available text format
+            for (const format of textFormats) {
+                textFile = metadata.files?.find(file => 
+                    file.format === format || 
+                    (file.name && (
+                        file.name.endsWith('.txt') || 
+                        file.name.endsWith('_djvu.txt') ||
+                        file.name.endsWith('_abbyy.gz')
+                    ))
                 );
-                
                 if (textFile) {
-                    const alternativeUrl = `https://archive.org/download/${identifier}/${textFile.name}`;
-                    response = await fetch(alternativeUrl);
-                } else {
-                    throw new Error(i18n ? i18n.translate('no-text-version') : 'No text version available for this book');
+                    bestFormat = format;
+                    break;
                 }
             }
             
-            if (response.ok) {
-                const text = await response.text();
+            // If no text file found, try common naming patterns
+            if (!textFile) {
+                const possibleTextFiles = metadata.files?.filter(file => 
+                    file.name.includes('.txt') ||
+                    file.name.includes('djvu') ||
+                    file.name.includes('abbyy')
+                ) || [];
                 
-                // Clean up the text (remove excessive whitespace, page numbers, etc.)
+                if (possibleTextFiles.length > 0) {
+                    // Sort by file size (larger usually means full text)
+                    textFile = possibleTextFiles.sort((a, b) => 
+                        (parseInt(b.size) || 0) - (parseInt(a.size) || 0)
+                    )[0];
+                    bestFormat = 'Found text file';
+                }
+            }
+            
+            if (!textFile) {
+                throw new Error(i18n ? i18n.translate('no-text-version') : 'No text version available for this book');
+            }
+            
+            // Try multiple URL patterns for different hosting setups
+            const urlPatterns = [
+                `https://archive.org/download/${identifier}/${textFile.name}`,
+                `https://ia902609.us.archive.org/download/${identifier}/${textFile.name}`,
+                `https://ia802609.us.archive.org/download/${identifier}/${textFile.name}`,
+                `https://archive.org/stream/${identifier}/${textFile.name.replace(/\.[^/.]+$/, '')}_djvu.txt`
+            ];
+            
+            let text = null;
+            let successUrl = null;
+            
+            // Try each URL pattern
+            for (const url of urlPatterns) {
+                try {
+                    console.log(`Trying to fetch from: ${url}`);
+                    const response = await fetch(url, {
+                        mode: 'cors',
+                        headers: {
+                            'Accept': 'text/plain, text/html, application/octet-stream, */*'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const contentType = response.headers.get('content-type') || '';
+                        
+                        if (textFile.name.endsWith('.gz') || textFile.format === 'Abbyy GZ') {
+                            // Handle gzipped content
+                            const arrayBuffer = await response.arrayBuffer();
+                            text = await this.decompressGzip(arrayBuffer);
+                        } else {
+                            text = await response.text();
+                        }
+                        
+                        successUrl = url;
+                        break;
+                    }
+                } catch (fetchError) {
+                    console.log(`Failed to fetch from ${url}:`, fetchError.message);
+                    continue;
+                }
+            }
+            
+            // If direct download failed, try the Internet Archive's streaming service
+            if (!text) {
+                try {
+                    const streamUrl = `https://archive.org/stream/${identifier}/${identifier}_djvu.txt`;
+                    console.log(`Trying stream URL: ${streamUrl}`);
+                    const response = await fetch(streamUrl);
+                    if (response.ok) {
+                        text = await response.text();
+                        successUrl = streamUrl;
+                    }
+                } catch (streamError) {
+                    console.log('Stream URL also failed:', streamError.message);
+                }
+            }
+            
+            // If still no text, provide user with manual download option
+            if (!text) {
+                const downloadUrl = `https://archive.org/download/${identifier}/${textFile.name}`;
+                const manualMessage = `
+                    <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 10px 0;">
+                        <h4>Manual Download Required</h4>
+                        <p>Due to browser security restrictions, automatic loading failed.</p>
+                        <p><strong>Please follow these steps:</strong></p>
+                        <ol style="text-align: left; display: inline-block;">
+                            <li>Click <a href="${downloadUrl}" target="_blank" style="color: #667eea; font-weight: bold;">this link</a> to download the text file</li>
+                            <li>Open the downloaded file in a text editor</li>
+                            <li>Copy the text content</li>
+                            <li>Paste it into the text area above</li>
+                        </ol>
+                        <a href="${downloadUrl}" target="_blank" class="sample-btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">
+                            📥 Download Text File
+                        </a>
+                    </div>
+                `;
+                
+                // Show manual download instructions
+                const resultsContainer = document.querySelector('.search-results');
+                const manualDiv = document.createElement('div');
+                manualDiv.innerHTML = manualMessage;
+                resultsContainer.insertBefore(manualDiv, resultsContainer.firstChild);
+                
+                // Scroll to show the instructions
+                manualDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                return; // Exit without throwing error
+            }
+            
+            if (text && text.trim().length > 100) {
+                // Clean up the text
                 const cleanedText = this.cleanBookText(text);
                 
                 if (cleanedText.trim().length > 100) {
@@ -227,43 +348,126 @@ class SpeedReader {
                     
                     // Show success feedback
                     const originalTitle = bookElement.querySelector('.book-title').textContent;
-                    bookElement.querySelector('.book-title').innerHTML = `✅ ${originalTitle} - ${i18n ? i18n.translate('loaded-success') : 'Loaded!'}`;
+                    bookElement.querySelector('.book-title').innerHTML = `✅ ${originalTitle} - ${i18n ? i18n.translate('loaded-success') : 'Loaded!'} (${bestFormat})`;
                     
                     setTimeout(() => {
                         bookElement.querySelector('.book-title').textContent = originalTitle;
                     }, 3000);
+                    
+                    console.log(`Successfully loaded text from: ${successUrl}`);
                 } else {
                     throw new Error(i18n ? i18n.translate('text-too-short') : 'Text content is too short or corrupted');
                 }
             } else {
-                throw new Error(i18n ? i18n.translate('fetch-failed') : 'Failed to fetch book text');
+                throw new Error(i18n ? i18n.translate('text-too-short') : 'Text content is too short or corrupted');
             }
+            
         } catch (error) {
             console.error('Error loading book:', error);
             const errorMessage = i18n ? i18n.translate('load-error') : 'Could not load this book';
-            alert(`${errorMessage}: ${error.message}. Try searching for another book.`);
+            
+            // More specific error messages
+            let specificError = error.message;
+            if (error.message.includes('Failed to fetch')) {
+                specificError = 'Network error - try again or use manual download option above';
+            } else if (error.message.includes('CORS')) {
+                specificError = 'Browser security restriction - use manual download option';
+            }
+            
+            alert(`${errorMessage}: ${specificError}`);
         } finally {
             bookElement.classList.remove('loading');
             loadingElement.style.display = 'none';
         }
     }
     
+    // Helper function to decompress gzip files
+    async decompressGzip(arrayBuffer) {
+        try {
+            // Use browser's built-in decompression if available
+            const ds = new DecompressionStream('gzip');
+            const decompressedStream = new Response(arrayBuffer).body.pipeThrough(ds);
+            const decompressed = await new Response(decompressedStream).arrayBuffer();
+            return new TextDecoder().decode(decompressed);
+        } catch (gzipError) {
+            console.log('Native gzip decompression failed, trying alternative method');
+            // Fallback: try to read as text directly (some files might not actually be gzipped)
+            return new TextDecoder().decode(arrayBuffer);
+        }
+    }
+    
     cleanBookText(text) {
-        return text
+        let cleaned = text;
+        
+        // Remove common OCR and scanning artifacts
+        cleaned = cleaned
             // Remove excessive whitespace and normalize line breaks
             .replace(/\r\n/g, '\n')
             .replace(/\r/g, '\n')
             // Remove multiple consecutive spaces
             .replace(/ +/g, ' ')
-            // Remove multiple consecutive line breaks
-            .replace(/\n\s*\n\s*\n/g, '\n\n')
+            // Remove multiple consecutive line breaks (keep max 2)
+            .replace(/\n\s*\n\s*\n+/g, '\n\n')
             // Remove common OCR artifacts and page markers
             .replace(/\n\s*\d+\s*\n/g, '\n') // Remove isolated page numbers
             .replace(/\n\s*Page \d+.*?\n/gi, '\n')
+            .replace(/\n\s*Chapter \d+\s*\n/gi, '\n\nChapter ')
+            // Remove headers and footers patterns
+            .replace(/\n\s*THE\s+PROJECT\s+GUTENBERG.*?\n/gi, '\n')
+            .replace(/\n\s*Project\s+Gutenberg.*?\n/gi, '\n')
+            .replace(/\n\s*End\s+of\s+Project\s+Gutenberg.*$/gi, '')
+            .replace(/\n\s*\*\*\*.*?\*\*\*\s*\n/g, '\n')
             // Remove excessive spaces at line beginnings
             .replace(/\n +/g, '\n')
+            // Remove common scanning artifacts
+            .replace(/[""]/g, '"') // Normalize quotes
+            .replace(/['']/g, "'") // Normalize apostrophes
+            .replace(/…/g, '...') // Normalize ellipsis
+            .replace(/—/g, '--') // Normalize em dashes
+            .replace(/–/g, '-') // Normalize en dashes
+            // Remove form feed and other control characters
+            .replace(/\f/g, '\n')
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+            // Clean up hyphenated words at line breaks
+            .replace(/-\n([a-z])/g, '$1')
+            // Fix common OCR errors
+            .replace(/\bn\b/g, 'in') // Common OCR error
+            .replace(/\brn\b/g, 'in') // Common OCR error
+            .replace(/\bTHE\b/g, 'THE') // Fix case
+            // Remove isolated single characters on their own lines
+            .replace(/\n\s*[a-zA-Z]\s*\n/g, '\n')
+            // Clean up chapter and section headers
+            .replace(/\n\s*(CHAPTER|Chapter|chapter)\s+([IVXLCDM]+|\d+)\s*\n/g, '\n\nChapter $2\n\n')
             // Trim the whole text
             .trim();
+            
+        // Additional cleaning for specific formats
+        if (cleaned.includes('START OF THE PROJECT GUTENBERG')) {
+            // Extract main content from Project Gutenberg files
+            const startMarker = /START OF TH[EI]S? PROJECT GUTENBERG.*?\n/i;
+            const endMarker = /END OF TH[EI]S? PROJECT GUTENBERG.*$/i;
+            
+            const startMatch = cleaned.match(startMarker);
+            const endMatch = cleaned.match(endMarker);
+            
+            if (startMatch) {
+                cleaned = cleaned.substring(startMatch.index + startMatch[0].length);
+            }
+            if (endMatch) {
+                cleaned = cleaned.substring(0, endMatch.index);
+            }
+        }
+        
+        // Remove table of contents patterns
+        cleaned = cleaned.replace(/\n\s*CONTENTS\s*\n[\s\S]*?\n\s*CHAPTER\s+1/i, '\n\nCHAPTER 1');
+        
+        // Final cleanup
+        cleaned = cleaned
+            .replace(/\n\s*\n\s*\n+/g, '\n\n') // Remove excessive line breaks again
+            .replace(/^\s+|\s+$/g, '') // Trim start and end
+            .replace(/\n\s+/g, '\n'); // Remove leading spaces on lines
+            
+        return cleaned;
     }
     
     escapeHtml(text) {

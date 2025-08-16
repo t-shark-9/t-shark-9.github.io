@@ -34,7 +34,13 @@ class I18n {
                 'no-text-version': 'No text version available for this book',
                 'text-too-short': 'Text content is too short or corrupted',
                 'fetch-failed': 'Failed to fetch book text',
-                'loaded-success': 'Loaded!'
+                'loaded-success': 'Loaded!',
+                'manual-download': 'Manual Download Required',
+                'download-instructions': 'Due to browser security restrictions, automatic loading failed.',
+                'download-steps': 'Please follow these steps:',
+                'download-link': 'Download Text File',
+                'network-error': 'Network error - try again or use manual download option above',
+                'cors-error': 'Browser security restriction - use manual download option'
             },
             es: {
                 'title': 'Lector Rápido',
@@ -67,7 +73,13 @@ class I18n {
                 'no-text-version': 'No hay versión de texto disponible para este libro',
                 'text-too-short': 'El contenido del texto es demasiado corto o está corrupto',
                 'fetch-failed': 'Error al obtener el texto del libro',
-                'loaded-success': '¡Cargado!'
+                'loaded-success': '¡Cargado!',
+                'manual-download': 'Descarga Manual Requerida',
+                'download-instructions': 'Debido a restricciones de seguridad del navegador, la carga automática falló.',
+                'download-steps': 'Por favor sigue estos pasos:',
+                'download-link': 'Descargar Archivo de Texto',
+                'network-error': 'Error de red - intenta de nuevo o usa la opción de descarga manual',
+                'cors-error': 'Restricción de seguridad del navegador - usa la opción de descarga manual'
             },
             fr: {
                 'title': 'Lecteur Rapide',
@@ -100,7 +112,13 @@ class I18n {
                 'no-text-version': 'Aucune version texte disponible pour ce livre',
                 'text-too-short': 'Le contenu du texte est trop court ou corrompu',
                 'fetch-failed': 'Échec de la récupération du texte du livre',
-                'loaded-success': 'Chargé !'
+                'loaded-success': 'Chargé !',
+                'manual-download': 'Téléchargement Manuel Requis',
+                'download-instructions': 'En raison des restrictions de sécurité du navigateur, le chargement automatique a échoué.',
+                'download-steps': 'Veuillez suivre ces étapes :',
+                'download-link': 'Télécharger le Fichier Texte',
+                'network-error': 'Erreur réseau - réessayez ou utilisez l\'option de téléchargement manuel',
+                'cors-error': 'Restriction de sécurité du navigateur - utilisez l\'option de téléchargement manuel'
             },
             de: {
                 'title': 'Schnellleser',
@@ -133,7 +151,13 @@ class I18n {
                 'no-text-version': 'Keine Textversion für dieses Buch verfügbar',
                 'text-too-short': 'Textinhalt ist zu kurz oder beschädigt',
                 'fetch-failed': 'Fehler beim Abrufen des Buchtexts',
-                'loaded-success': 'Geladen!'
+                'loaded-success': 'Geladen!',
+                'manual-download': 'Manueller Download Erforderlich',
+                'download-instructions': 'Aufgrund von Browser-Sicherheitsbeschränkungen ist das automatische Laden fehlgeschlagen.',
+                'download-steps': 'Bitte befolgen Sie diese Schritte:',
+                'download-link': 'Textdatei Herunterladen',
+                'network-error': 'Netzwerkfehler - versuchen Sie es erneut oder nutzen Sie die manuelle Download-Option',
+                'cors-error': 'Browser-Sicherheitsbeschränkung - nutzen Sie die manuelle Download-Option'
             },
             sv: {
                 'title': 'Snabbläsare',
