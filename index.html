@@ -9,30 +9,42 @@
 <body>
     <div class="container">
         <header>
-            <h1>Speed Reader</h1>
-            <p>Read faster by focusing on one word at a time</p>
+            <div class="header-top">
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-select">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="sv">🇸🇪 Svenska</option>
+                    </select>
+                </div>
+            </div>
+            <h1 data-i18n="title">Speed Reader</h1>
+            <p data-i18n="subtitle">Read faster by focusing on one word at a time</p>
         </header>
 
         <main>
             <!-- Text Input Section -->
             <section class="input-section">
-                <label for="textInput">Paste your text here:</label>
+                <label for="textInput" data-i18n="paste-text">Paste your text here:</label>
                 <textarea 
                     id="textInput" 
+                    data-i18n-placeholder="text-placeholder"
                     placeholder="Paste or type your long-form content here..."
                     rows="8"
                 ></textarea>
                 
                 <div class="controls">
                     <button id="playBtn" class="play-btn">
-                        <span id="playIcon">▶️</span> Start Reading
+                        <span id="playIcon">▶️</span> <span data-i18n="start-reading">Start Reading</span>
                     </button>
-                    <button id="resetBtn" class="reset-btn">🔄 Reset</button>
+                    <button id="resetBtn" class="reset-btn">🔄 <span data-i18n="reset">Reset</span></button>
                     
                     <div class="speed-control">
-                        <label for="speedSlider">Speed (WPM):</label>
+                        <label for="speedSlider" data-i18n="speed-wpm">Speed (WPM):</label>
                         <input type="range" id="speedSlider" min="100" max="1000" value="500" step="50">
-                        <span id="speedDisplay">500</span> WPM
+                        <span id="speedDisplay">500</span> <span data-i18n="wpm">WPM</span>
                     </div>
                 </div>
             </section>
@@ -48,44 +60,46 @@
                         <div class="progress-bar">
                             <div id="progressFill" class="progress-fill"></div>
                         </div>
-                        <div class="word-info">
-                            Word <span id="currentWord">0</span> of <span id="totalWords">0</span>
-                        </div>
+                                            <div class="word-info">
+                        <span data-i18n="word">Word</span> <span id="currentWord">0</span> <span data-i18n="of">of</span> <span id="totalWords">0</span>
+                    </div>
                     </div>
                 </div>
             </section>
 
             <!-- Internet Archive Book Search -->
             <section class="book-search-section">
-                <h3>📚 Search Books from Internet Archive</h3>
+                <h3 data-i18n="search-books">📚 Search Books from Internet Archive</h3>
                 <div class="book-search-controls">
                     <input 
                         type="text" 
                         id="bookSearchInput" 
+                        data-i18n-placeholder="search-placeholder"
                         placeholder="Search for books (e.g., 'Alice in Wonderland', 'Pride and Prejudice')"
                         class="book-search-input"
                     >
-                    <button id="searchBooksBtn" class="search-books-btn">🔍 Search Books</button>
+                    <button id="searchBooksBtn" class="search-books-btn">🔍 <span data-i18n="search">Search Books</span></button>
                 </div>
                 
                 <div id="searchResults" class="search-results"></div>
                 <div id="loadingIndicator" class="loading-indicator" style="display: none;">
                     <div class="spinner"></div>
-                    <p>Searching books...</p>
+                    <p data-i18n="searching">Searching books...</p>
                 </div>
             </section>
 
             <!-- Sample Text Button -->
             <section class="sample-section">
-                <button id="sampleBtn" class="sample-btn">📖 Load Sample Text</button>
+                <button id="sampleBtn" class="sample-btn">📖 <span data-i18n="load-sample">Load Sample Text</span></button>
             </section>
         </main>
 
         <footer>
-            <p>Speed reading technique: Focus on the center and let your peripheral vision catch each word</p>
+            <p data-i18n="footer-tip">Speed reading technique: Focus on the center and let your peripheral vision catch each word</p>
         </footer>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

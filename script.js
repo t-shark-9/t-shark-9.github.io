@@ -6,9 +6,22 @@ class SpeedReader {
         this.intervalId = null;
         this.wordsPerMinute = 500;
         
-        this.initializeElements();
-        this.bindEvents();
-        this.updateSpeedDisplay();
+        // Wait for i18n to be ready
+        if (typeof i18n !== 'undefined') {
+            this.initializeElements();
+            this.bindEvents();
+            this.updateSpeedDisplay();
+            this.updateUITexts();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    this.initializeElements();
+                    this.bindEvents();
+                    this.updateSpeedDisplay();
+                    this.updateUITexts();
+                }, 100);
+            });
+        }
     }
     
     initializeElements() {
@@ -55,6 +68,46 @@ class SpeedReader {
                 this.reset();
             }
         });
+        
+        // Listen for language changes
+        window.addEventListener('languageChanged', () => {
+            this.updateUITexts();
+        });
+    }
+    
+    updateUITexts() {
+        if (typeof i18n === 'undefined') return;
+        
+        // Update dynamic text that's not handled by data-i18n attributes
+        if (this.words.length === 0) {
+            this.wordDisplay.textContent = i18n.translate('enter-text');
+        } else if (!this.isPlaying && this.currentWordIndex === 0) {
+            this.wordDisplay.textContent = i18n.translate('ready-start');
+        }
+        
+        // Update button text based on current state
+        this.updatePlayButtonText();
+    }
+    
+    updatePlayButtonText() {
+        if (typeof i18n === 'undefined') return;
+        
+        const playTextElement = this.playBtn.querySelector('[data-i18n="start-reading"]');
+        if (!playTextElement) return;
+        
+        if (this.isPlaying) {
+            playTextElement.textContent = i18n.translate('pause');
+            this.playIcon.textContent = '⏸️';
+        } else if (this.currentWordIndex >= this.words.length && this.words.length > 0) {
+            playTextElement.textContent = i18n.translate('start-over');
+            this.playIcon.textContent = '🔄';
+        } else if (this.currentWordIndex > 0) {
+            playTextElement.textContent = i18n.translate('resume');
+            this.playIcon.textContent = '▶️';
+        } else {
+            playTextElement.textContent = i18n.translate('start-reading');
+            this.playIcon.textContent = '▶️';
+        }
     }
     
     isInputFocused() {
@@ -65,7 +118,7 @@ class SpeedReader {
     async searchBooks() {
         const query = this.bookSearchInput.value.trim();
         if (!query) {
-            alert('Please enter a search term');
+            alert(i18n ? i18n.translate('enter-search') : 'Please enter a search term');
             return;
         }
         
@@ -83,11 +136,11 @@ class SpeedReader {
             if (data.response && data.response.docs && data.response.docs.length > 0) {
                 this.displaySearchResults(data.response.docs);
             } else {
-                this.searchResults.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">No books found. Try a different search term.</p>';
+                this.searchResults.innerHTML = `<p style="text-align: center; padding: 20px; color: #666;">${i18n ? i18n.translate('no-books') : 'No books found. Try a different search term.'}</p>`;
             }
         } catch (error) {
             console.error('Search error:', error);
-            this.searchResults.innerHTML = '<p style="text-align: center; padding: 20px; color: #dc3545;">Error searching books. Please try again.</p>';
+            this.searchResults.innerHTML = `<p style="text-align: center; padding: 20px; color: #dc3545;">${i18n ? i18n.translate('search-error') : 'Error searching books. Please try again.'}</p>`;
         } finally {
             this.searchBooksBtn.disabled = false;
             this.loadingIndicator.style.display = 'none';
@@ -155,7 +208,7 @@ class SpeedReader {
                     const alternativeUrl = `https://archive.org/download/${identifier}/${textFile.name}`;
                     response = await fetch(alternativeUrl);
                 } else {
-                    throw new Error('No text version available for this book');
+                    throw new Error(i18n ? i18n.translate('no-text-version') : 'No text version available for this book');
                 }
             }
             
@@ -174,20 +227,21 @@ class SpeedReader {
                     
                     // Show success feedback
                     const originalTitle = bookElement.querySelector('.book-title').textContent;
-                    bookElement.querySelector('.book-title').innerHTML = `✅ ${originalTitle} - Loaded!`;
+                    bookElement.querySelector('.book-title').innerHTML = `✅ ${originalTitle} - ${i18n ? i18n.translate('loaded-success') : 'Loaded!'}`;
                     
                     setTimeout(() => {
                         bookElement.querySelector('.book-title').textContent = originalTitle;
                     }, 3000);
                 } else {
-                    throw new Error('Text content is too short or corrupted');
+                    throw new Error(i18n ? i18n.translate('text-too-short') : 'Text content is too short or corrupted');
                 }
             } else {
-                throw new Error('Failed to fetch book text');
+                throw new Error(i18n ? i18n.translate('fetch-failed') : 'Failed to fetch book text');
             }
         } catch (error) {
             console.error('Error loading book:', error);
-            alert(`Could not load this book: ${error.message}. Try searching for another book.`);
+            const errorMessage = i18n ? i18n.translate('load-error') : 'Could not load this book';
+            alert(`${errorMessage}: ${error.message}. Try searching for another book.`);
         } finally {
             bookElement.classList.remove('loading');
             loadingElement.style.display = 'none';
@@ -229,18 +283,19 @@ class SpeedReader {
             
             if (this.words.length > 0) {
                 this.playBtn.disabled = false;
-                this.wordDisplay.textContent = 'Ready to start';
+                this.wordDisplay.textContent = i18n ? i18n.translate('ready-start') : 'Ready to start';
             } else {
                 this.playBtn.disabled = true;
-                this.wordDisplay.textContent = 'Enter some text to begin';
+                this.wordDisplay.textContent = i18n ? i18n.translate('enter-text') : 'Enter some text to begin';
             }
         } else {
             this.words = [];
             this.playBtn.disabled = true;
-            this.wordDisplay.textContent = 'Enter some text to begin';
+            this.wordDisplay.textContent = i18n ? i18n.translate('enter-text') : 'Enter some text to begin';
             this.updateWordCount();
             this.updateProgress();
         }
+        this.updatePlayButtonText();
     }
     
     updateSpeed() {
@@ -260,7 +315,7 @@ class SpeedReader {
     
     toggleReading() {
         if (this.words.length === 0) {
-            alert('Please enter some text first!');
+            alert(i18n ? i18n.translate('enter-text') : 'Please enter some text first!');
             return;
         }
         
@@ -277,7 +332,7 @@ class SpeedReader {
         }
         
         this.isPlaying = true;
-        this.playBtn.textContent = '⏸️ Pause';
+        this.updatePlayButtonText();
         this.playBtn.classList.add('playing');
         
         // Calculate interval in milliseconds
@@ -291,7 +346,7 @@ class SpeedReader {
     
     pauseReading() {
         this.stopReading();
-        this.playBtn.textContent = '▶️ Resume';
+        this.updatePlayButtonText();
         this.playBtn.classList.remove('playing');
     }
     
@@ -309,9 +364,9 @@ class SpeedReader {
         if (this.currentWordIndex >= this.words.length) {
             // Finished reading
             this.stopReading();
-            this.playBtn.textContent = '🔄 Start Over';
+            this.updatePlayButtonText();
             this.playBtn.classList.remove('playing');
-            this.wordDisplay.textContent = '✅ Finished!';
+            this.wordDisplay.textContent = i18n ? i18n.translate('finished') : '✅ Finished!';
             this.wordDisplay.classList.add('highlight');
             
             setTimeout(() => {
@@ -358,14 +413,14 @@ class SpeedReader {
     reset() {
         this.stopReading();
         this.currentWordIndex = 0;
-        this.playBtn.textContent = '▶️ Start Reading';
+        this.updatePlayButtonText();
         this.playBtn.classList.remove('playing');
         
         if (this.words.length > 0) {
-            this.wordDisplay.textContent = 'Ready to start';
+            this.wordDisplay.textContent = i18n ? i18n.translate('ready-start') : 'Ready to start';
             this.playBtn.disabled = false;
         } else {
-            this.wordDisplay.textContent = 'Enter some text to begin';
+            this.wordDisplay.textContent = i18n ? i18n.translate('enter-text') : 'Enter some text to begin';
             this.playBtn.disabled = true;
         }
         
@@ -374,7 +429,8 @@ class SpeedReader {
     }
     
     loadSampleText() {
-        const sampleText = `Speed reading is a collection of reading methods which attempt to increase rates of reading without greatly reducing comprehension or retention. Methods include chunking and eliminating subvocalization. The many available speed-reading training programs include books, videos, software, and seminars.
+        // Use localized sample text if i18n is available
+        const sampleText = i18n ? i18n.getSampleText() : `Speed reading is a collection of reading methods which attempt to increase rates of reading without greatly reducing comprehension or retention. Methods include chunking and eliminating subvocalization. The many available speed-reading training programs include books, videos, software, and seminars.
 
 There is little scientific evidence regarding speed reading, and as a result its value is contested. Cognitive neuroscientist Stanislas Dehaene says that claims of reading speeds of above 500 words per minute "must be viewed with skepticism" and that above 300 wpm people must start to use things like skimming or scanning which do not qualify as reading.
 
