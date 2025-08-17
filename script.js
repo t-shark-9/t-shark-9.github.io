@@ -653,7 +653,49 @@ This speed reading application helps you practice the technique of presenting on
 // Initialize the speed reader when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new SpeedReader();
+    
+    // Initialize Google AdSense ads
+    initializeAds();
 });
+
+// Google AdSense initialization
+function initializeAds() {
+    // Check if AdSense script is loaded
+    if (typeof window.adsbygoogle !== 'undefined') {
+        try {
+            // Push all ad units to AdSense
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            adElements.forEach(ad => {
+                if (!ad.getAttribute('data-adsbygoogle-status')) {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                }
+            });
+            
+            console.log('AdSense ads initialized');
+        } catch (error) {
+            console.log('AdSense initialization error:', error);
+        }
+    } else {
+        // Retry after a short delay if AdSense script isn't loaded yet
+        setTimeout(initializeAds, 1000);
+    }
+}
+
+// Function to refresh ads (useful for single-page applications)
+function refreshAds() {
+    if (typeof window.adsbygoogle !== 'undefined') {
+        try {
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            adElements.forEach(ad => {
+                // Remove the status attribute to allow re-initialization
+                ad.removeAttribute('data-adsbygoogle-status');
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            });
+        } catch (error) {
+            console.log('Ad refresh error:', error);
+        }
+    }
+}
 
 // Add some visual feedback for better user experience
 document.addEventListener('DOMContentLoaded', () => {
