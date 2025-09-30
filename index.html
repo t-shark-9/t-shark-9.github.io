@@ -3,192 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed Reader - Read Faster and Better</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>T-Shark Reading & AI Chat Platform</title>
+    <link rel="stylesheet" href="main-styles.css">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4812697817644234"
             crossorigin="anonymous"></script>
     
-    <!-- Additional meta tags for better SEO and ad performance -->
-    <meta name="description" content="Speed reading app with one-word display. Read faster by focusing on one word at a time. Free online tool with Internet Archive book integration.">
-    <meta name="keywords" content="speed reading, fast reading, reading app, online reading tool, one word display, reading training">
-    <meta name="author" content="Speed Reader App">
-    <meta property="og:title" content="Speed Reader - Read Faster and Better">
-    <meta property="og:description" content="Improve your reading speed with our one-word display technique. Free online speed reading tool.">
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Choose between speed reading tools and AI-powered chat with fast reading capabilities. Read faster and chat smarter.">
+    <meta name="keywords" content="speed reading, AI chat, fast reading, automation, N8n integration, reading tools">
+    <meta name="author" content="T-Shark Platform">
+    <meta property="og:title" content="T-Shark Reading & AI Chat Platform">
+    <meta property="og:description" content="Revolutionary platform combining speed reading and AI chat with fast text display.">
     <meta property="og:type" content="website">
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="header-top">
-                <div class="language-selector">
-                    <select id="languageSelect" class="language-select">
-                        <option value="en">🇺🇸 English</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="sv">🇸🇪 Svenska</option>
-                    </select>
-                </div>
+        <header class="main-header">
+            <div class="header-content">
+                <h1 class="logo">T-Shark Platform</h1>
+                <p class="tagline">Read Fast. Chat Smart. Experience More.</p>
             </div>
-            <h1 data-i18n="title">Speed Reader</h1>
-            <p data-i18n="subtitle">Read faster by focusing on one word at a time</p>
         </header>
 
-        <main>
-            <!-- Top Banner Ad -->
-            <section class="ad-banner-top">
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h2 class="hero-title">Choose Your Experience</h2>
+                    <p class="hero-subtitle">Two powerful tools designed to enhance your reading and communication</p>
+                </div>
+            </section>
+
+            <!-- Options Section -->
+            <section class="options-section">
+                <div class="options-container">
+                    <!-- Speed Reading Option -->
+                    <div class="option-card speed-reading-card">
+                        <div class="option-icon">📚</div>
+                        <h3 class="option-title">Quick Reading</h3>
+                        <p class="option-description">
+                            Experience lightning-fast reading with our proven one-word display technique. 
+                            Read books and texts at incredible speeds while maintaining comprehension.
+                        </p>
+                        <div class="option-features">
+                            <div class="feature">✨ One-word focus display</div>
+                            <div class="feature">⚡ Adjustable reading speed</div>
+                            <div class="feature">📖 Internet Archive integration</div>
+                            <div class="feature">🎯 Enhanced comprehension</div>
+                        </div>
+                        <button class="option-button" onclick="goToSpeedReading()">
+                            Start Speed Reading
+                        </button>
+                    </div>
+
+                    <!-- AI Chat Option -->
+                    <div class="option-card ai-chat-card">
+                        <div class="option-icon">🤖</div>
+                        <h3 class="option-title">AI Chat Hub</h3>
+                        <p class="option-description">
+                            Engage with AI models through our intelligent chat interface featuring 
+                            the same fast-reading technology for lightning-quick response consumption.
+                        </p>
+                        <div class="option-features">
+                            <div class="feature">🚀 Fast text display for responses</div>
+                            <div class="feature">🔗 N8n automation integration</div>
+                            <div class="feature">💾 Firebase chat history</div>
+                            <div class="feature">🧠 Multiple AI model access</div>
+                        </div>
+                        <button class="option-button" onclick="goToAIChat()">
+                            Enter AI Chat
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature Highlight -->
+            <section class="feature-highlight">
+                <div class="highlight-content">
+                    <h3 class="highlight-title">🎯 Signature Fast Reading Technology</h3>
+                    <p class="highlight-description">
+                        Both experiences feature our revolutionary fast-reading display where words appear 
+                        rapidly in the same position, allowing you to consume information at unprecedented speeds 
+                        while maintaining focus and comprehension.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Advertisement Banner -->
+            <section class="ad-banner">
                 <div class="ad-container">
                     <div class="ad-label">Advertisement</div>
                     <ins class="adsbygoogle"
                          style="display:block"
-                         data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                         data-ad-slot="YOUR-TOP-BANNER-SLOT"
-                         data-ad-format="horizontal"
-                         data-full-width-responsive="true"></ins>
-                </div>
-            </section>
-
-            <!-- Text Input Section -->
-            <section class="input-section">
-                <label for="textInput" data-i18n="paste-text">Paste your text here:</label>
-                <textarea 
-                    id="textInput" 
-                    data-i18n-placeholder="text-placeholder"
-                    placeholder="Paste or type your long-form content here..."
-                    rows="8"
-                ></textarea>
-                
-                <div class="controls">
-                    <button id="playBtn" class="play-btn">
-                        <span id="playIcon">▶️</span> <span data-i18n="start-reading">Start Reading</span>
-                    </button>
-                    <button id="resetBtn" class="reset-btn">🔄 <span data-i18n="reset">Reset</span></button>
-                    
-                    <div class="speed-control">
-                        <label for="speedSlider" data-i18n="speed-wpm">Speed (WPM):</label>
-                        <input type="range" id="speedSlider" min="100" max="1000" value="500" step="50">
-                        <span id="speedDisplay">500</span> <span data-i18n="wpm">WPM</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Word Display Area with Ads -->
-            <section class="display-section">
-                <div class="display-with-ads">
-                    <!-- Left Sidebar Ad -->
-                    <div class="ad-sidebar ad-left">
-                        <div class="ad-container">
-                            <div class="ad-label">Advertisement</div>
-                            <!-- Google AdSense - Left Sidebar -->
-                            <ins class="adsbygoogle"
-                                 style="display:block"
-                                 data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                                 data-ad-slot="YOUR-LEFT-AD-SLOT"
-                                 data-ad-format="vertical"
-                                 data-full-width-responsive="true"></ins>
-                        </div>
-                        
-                        <!-- Additional Left Ad Unit -->
-                        <div class="ad-container ad-secondary">
-                            <div class="ad-label">Advertisement</div>
-                            <ins class="adsbygoogle"
-                                 style="display:block"
-                                 data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                                 data-ad-slot="YOUR-LEFT-AD-SLOT-2"
-                                 data-ad-format="rectangle"
-                                 data-full-width-responsive="true"></ins>
-                        </div>
-                    </div>
-
-                    <!-- Main Reading Area -->
-                    <div class="word-container">
-                        <div id="wordDisplay" class="word-display">
-                            Click "Start Reading" to begin
-                        </div>
-                        
-                        <div class="progress-info">
-                            <div class="progress-bar">
-                                <div id="progressFill" class="progress-fill"></div>
-                            </div>
-                            <div class="word-info">
-                                <span data-i18n="word">Word</span> <span id="currentWord">0</span> <span data-i18n="of">of</span> <span id="totalWords">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Sidebar Ad -->
-                    <div class="ad-sidebar ad-right">
-                        <div class="ad-container">
-                            <div class="ad-label">Advertisement</div>
-                            <!-- Google AdSense - Right Sidebar -->
-                            <ins class="adsbygoogle"
-                                 style="display:block"
-                                 data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                                 data-ad-slot="YOUR-RIGHT-AD-SLOT"
-                                 data-ad-format="vertical"
-                                 data-full-width-responsive="true"></ins>
-                        </div>
-                        
-                        <!-- Additional Right Ad Unit -->
-                        <div class="ad-container ad-secondary">
-                            <div class="ad-label">Advertisement</div>
-                            <ins class="adsbygoogle"
-                                 style="display:block"
-                                 data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                                 data-ad-slot="YOUR-RIGHT-AD-SLOT-2"
-                                 data-ad-format="rectangle"
-                                 data-full-width-responsive="true"></ins>
-                        </div>
-                    </div>
-                </div>
-            </section>            <!-- Internet Archive Book Search -->
-            <section class="book-search-section">
-                <h3 data-i18n="search-books">📚 Search Books from Internet Archive</h3>
-                <div class="book-search-controls">
-                    <input 
-                        type="text" 
-                        id="bookSearchInput" 
-                        data-i18n-placeholder="search-placeholder"
-                        placeholder="Search for books (e.g., 'Alice in Wonderland', 'Pride and Prejudice')"
-                        class="book-search-input"
-                    >
-                    <button id="searchBooksBtn" class="search-books-btn">🔍 <span data-i18n="search">Search Books</span></button>
-                </div>
-                
-                <div id="searchResults" class="search-results"></div>
-                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
-                    <div class="spinner"></div>
-                    <p data-i18n="searching">Searching books...</p>
-                </div>
-            </section>
-
-            <!-- Sample Text Button -->
-            <section class="sample-section">
-                <button id="sampleBtn" class="sample-btn">📖 <span data-i18n="load-sample">Load Sample Text</span></button>
-            </section>
-
-            <!-- Bottom Banner Ad -->
-            <section class="ad-banner-bottom">
-                <div class="ad-container">
-                    <div class="ad-label">Advertisement</div>
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-YOUR-PUBLISHER-ID"
-                         data-ad-slot="YOUR-BOTTOM-BANNER-SLOT"
+                         data-ad-client="ca-pub-4812697817644234"
+                         data-ad-slot="YOUR-BANNER-SLOT"
                          data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </section>
         </main>
 
-        <footer>
-            <p data-i18n="footer-tip">Speed reading technique: Focus on the center and let your peripheral vision catch each word</p>
+        <footer class="main-footer">
+            <p>&copy; 2024 T-Shark Platform. Revolutionizing reading and AI interaction.</p>
         </footer>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="script.js"></script>
+    <script src="main-script.js"></script>
+    
+    <!-- Initialize AdSense -->
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 </body>
 </html>

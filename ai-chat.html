@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Hub - T-Shark Platform</title>
+    <link rel="stylesheet" href="chat-styles.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4812697817644234"
+            crossorigin="anonymous"></script>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="AI Chat with fast reading capabilities - Experience AI responses at lightning speed">
+    <meta name="keywords" content="AI chat, fast reading, chat interface, N8n integration, Firebase">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-content">
+                <button class="back-button" onclick="goHome()">← Back to Home</button>
+                <h1 class="chat-title">AI Chat Hub</h1>
+                <div class="header-controls">
+                    <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+                    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="chat-main">
+            <!-- Sidebar -->
+            <aside class="chat-sidebar">
+                <div class="sidebar-header">
+                    <h3>Chat History</h3>
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                </div>
+                <div class="chat-history" id="chatHistory">
+                    <!-- Chat history will be populated here -->
+                </div>
+            </aside>
+
+            <!-- Chat Area -->
+            <section class="chat-area">
+                <!-- Fast Reading Display -->
+                <div class="fast-reading-container" id="fastReadingContainer" style="display: none;">
+                    <div class="reading-controls">
+                        <button class="reading-btn" id="pauseReadingBtn" onclick="pauseFastReading()">⏸️ Pause</button>
+                        <div class="reading-speed">
+                            <label for="chatSpeedSlider">Speed:</label>
+                            <input type="range" id="chatSpeedSlider" min="100" max="1000" value="400" step="50">
+                            <span id="chatSpeedDisplay">400</span> WPM
+                        </div>
+                        <button class="reading-btn" onclick="closeFastReading()">❌ Close</button>
+                    </div>
+                    <div class="word-display-container">
+                        <div id="chatWordDisplay" class="chat-word-display">
+                            Ready to read...
+                        </div>
+                        <div class="reading-progress">
+                            <div id="chatProgressFill" class="progress-fill"></div>
+                        </div>
+                        <div class="word-counter">
+                            Word <span id="chatCurrentWord">0</span> of <span id="chatTotalWords">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="messages-container" id="messagesContainer">
+                    <div class="welcome-message">
+                        <h2>Welcome to AI Chat Hub 🤖</h2>
+                        <p>Start a conversation with AI and experience responses through our fast reading technology!</p>
+                        <div class="model-selection">
+                            <label for="modelSelect">Choose AI Model:</label>
+                            <select id="modelSelect" class="model-select">
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="claude-3">Claude 3</option>
+                                <option value="gemini-pro">Gemini Pro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Type your message here... Press Ctrl+Enter to send"
+                            rows="2"
+                        ></textarea>
+                        <div class="input-controls">
+                            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                <span id="sendIcon">📤</span> Send
+                            </button>
+                            <button class="fast-read-toggle" onclick="toggleFastReadMode()">
+                                ⚡ Fast Read Mode
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button class="modal-close" onclick="closeSettings()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label>N8n Webhook URL:</label>
+                        <input type="url" id="n8nWebhookUrl" placeholder="https://your-n8n-instance.com/webhook/...">
+                    </div>
+                    <div class="setting-group">
+                        <label>Default Reading Speed (WPM):</label>
+                        <input type="number" id="defaultSpeed" min="100" max="1000" value="400">
+                    </div>
+                    <div class="setting-group">
+                        <label>Auto-activate Fast Reading:</label>
+                        <input type="checkbox" id="autoFastRead">
+                    </div>
+                    <div class="setting-group">
+                        <label>Save Chat History:</label>
+                        <input type="checkbox" id="saveChatHistory" checked>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
+                    <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advertisement -->
+        <div class="ad-container">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4812697817644234"
+                 data-ad-slot="YOUR-CHAT-AD-SLOT"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="fast-reader.js"></script>
+    <script src="chat-script.js"></script>
+    
+    <!-- Initialize AdSense -->
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html>

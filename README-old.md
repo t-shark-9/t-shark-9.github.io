@@ -1,6 +1,6 @@
-# T-Shark Platform - Reading & AI Chat
+# Speed Reader - Read Faster and Better
 
-A revolutionary platform that combines speed reading technology with AI chat capabilities, featuring the signature fast-reading display system.
+A web-based speed reading application that helps users read long texts quickly by displaying one word at a time in a fixed position.
 
 ## 🎯 Features
 
